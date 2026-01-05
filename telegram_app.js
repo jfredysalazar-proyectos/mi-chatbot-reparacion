@@ -21,9 +21,9 @@ const servicesFlow = addKeyword(['Consultar Servicios', 'servicios'])
     .addAnswer([
         '🛠️ *Nuestros Servicios:*',
         '',
-        '*1. Hardware:* Reparación de Cargadores, cambio de teclados, Visagras, Daño Electrónico. Desde $30.000.',
-        '*2. Software:* Formateo, eliminación de virus, instalación de programas. Desde $30.000',
-        '*3. Mantenimiento:* Limpieza física y cambio de pasta térmica. Desde $40.000'
+        '*1. Hardware:* Reparación de pantallas, teclados, baterías. Desde $50.',
+        '*2. Software:* Formateo, eliminación de virus, instalación de programas. $30.',
+        '*3. Mantenimiento:* Limpieza física y térmica profunda. $40.'
     ], {
         buttons: [
             { body: 'Agendar Cita' },
@@ -92,7 +92,7 @@ const schedulingFlow = addKeyword(['Agendar Cita', 'agendar'])
 
 const welcomeFlow = addKeyword(['/start', 'hola', 'menu', 'Menu Principal'])
     .addAnswer([
-        '👋 ¡Hola! Bienvenido al servicio técnico de computadores en MYFIMPORT.',
+        '👋 ¡Hola! Bienvenido al servicio técnico de computadores en Telegram.',
         'Soy tu asistente virtual. ¿En qué puedo ayudarte hoy?'
     ], {
         buttons: [
@@ -107,7 +107,7 @@ const main = async () => {
     
     require('dotenv').config();
     const adapterProvider = createProvider(TelegramProvider, {
-        token: process.env.TELEGRAM_TOKEN || '8219131617:AAGKuXv7P8ohYnQlmfuPj5sxPrvMl7COrKk'
+        token: process.env.TELEGRAM_TOKEN || 'TU_TOKEN_DE_TELEGRAM'
     });
 
     const adapterDB = { find: () => null, save: () => null, init: () => null };

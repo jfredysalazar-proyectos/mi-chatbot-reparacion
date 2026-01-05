@@ -21,9 +21,9 @@ const servicesFlow = addKeyword(['2', 'servicios', 'precios'])
     .addAnswer([
         '🛠️ *Nuestros Servicios:*',
         '',
-        '*1. Hardware:* Reparación de Cargadores, cambio de teclados, Visagras, Daño Electrónico. Desde $30.000.',
-        '*2. Software:* Formateo, eliminación de virus, instalación de programas. Desde $30.000.',
-        '*3. Mantenimiento:* Limpieza física y cambio de pasta térmica. Desde $40.000',
+        '*1. Hardware:* Reparación de pantallas, teclados, baterías. Desde $50.',
+        '*2. Software:* Formateo, eliminación de virus, instalación de programas. $30.',
+        '*3. Mantenimiento:* Limpieza física y térmica profunda. $40.',
         '',
         'Escribe *Agendar* para programar una cita o *Menu* para volver.'
     ]);
@@ -83,7 +83,7 @@ const schedulingFlow = addKeyword(['1', 'agendar', 'cita'])
 
 const welcomeFlow = addKeyword(['hola', 'ole', 'buenas', 'menu', 'inicio'])
     .addAnswer([
-        '👋 ¡Hola! Bienvenido al servicio técnico de computadores MYFIMPORT',
+        '👋 ¡Hola! Bienvenido al servicio técnico de computadores.',
         'Soy tu asistente virtual. ¿En qué puedo ayudarte hoy?',
         '',
         '1. 📅 *Agendar Cita*',

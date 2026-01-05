@@ -107,7 +107,7 @@ const main = async () => {
     
     require('dotenv').config();
     const adapterProvider = createProvider(TelegramProvider, {
-        token: process.env.TELEGRAM_TOKEN || 'TU_TOKEN_DE_TELEGRAM'
+        token: process.env.TELEGRAM_TOKEN || '8219131617:AAGKuXv7P8ohYnQlmfuPj5sxPrvMl7COrKk'
     });
 
     const adapterDB = { find: () => null, save: () => null, init: () => null };

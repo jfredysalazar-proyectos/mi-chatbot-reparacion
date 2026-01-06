@@ -1,7 +1,7 @@
 {
   "name": "whatsapp-repair-bot",
   "version": "1.0.0",
-  "description": "Chatbot de agendamiento para reparación de computadores",
+  "description": "Chatbot de agendamiento para reparaciÃ³n de computadores",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",

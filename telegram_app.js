@@ -138,6 +138,12 @@ const main = async () => {
         
         console.log('✅ Bot de Telegram iniciado correctamente');
         console.log('📨 El bot está listo para recibir mensajes en Telegram');
+        
+        // Mantener el proceso activo
+        setInterval(() => {
+            console.log('💓 Bot de Telegram activo -', new Date().toISOString());
+        }, 60000); // Log cada 60 segundos
+        
     } catch (error) {
         console.error('❌ Error al iniciar el bot de Telegram:', error);
         console.error('Stack trace:', error.stack);

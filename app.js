@@ -123,6 +123,12 @@ const main = async () => {
         
         console.log('✅ Bot de WhatsApp iniciado correctamente');
         console.log('📲 Escanea el código QR que aparecerá arriba para conectar WhatsApp');
+        
+        // Mantener el proceso activo
+        setInterval(() => {
+            console.log('💓 Bot de WhatsApp activo -', new Date().toISOString());
+        }, 60000); // Log cada 60 segundos
+        
     } catch (error) {
         console.error('❌ Error al iniciar el bot de WhatsApp:', error);
         console.error('Stack trace:', error.stack);

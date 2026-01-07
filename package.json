@@ -1,12 +1,12 @@
 {
   "name": "whatsapp-repair-bot",
   "version": "1.0.0",
+  "type": "module",
   "description": "Chatbot de agendamiento para reparación de computadores",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "telegram": "node telegram_app.js",
-    "prod": "pm2-runtime start ecosystem.config.js"
+    "telegram": "node telegram_app.js"
   },
   "engines": {
     "node": "20.x"

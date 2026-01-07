@@ -6,7 +6,8 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "telegram": "node telegram_app.js"
+    "telegram": "node telegram_app.js",
+    "pm2": "pm2-runtime start ecosystem.config.cjs"
   },
   "engines": {
     "node": "20.x"
@@ -17,6 +18,7 @@
     "@builderbot-plugins/telegram": "latest",
     "dotenv": "latest",
     "google-spreadsheet": "latest",
-    "google-auth-library": "latest"
+    "google-auth-library": "latest",
+    "pm2": "^5.3.0"
   }
 }

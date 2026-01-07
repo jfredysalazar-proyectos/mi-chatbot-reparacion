@@ -1,4 +1,10 @@
 import { createBot, createProvider, createFlow, addKeyword } from '@builderbot/bot';
+
+console.log('🚀 Iniciando Bot de WhatsApp...');
+console.log('📋 Variables de entorno cargadas:');
+console.log('  - GOOGLE_SERVICE_ACCOUNT_EMAIL:', process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL ? '✅ Configurado' : '❌ NO configurado');
+console.log('  - GOOGLE_PRIVATE_KEY:', process.env.GOOGLE_PRIVATE_KEY ? '✅ Configurado' : '❌ NO configurado');
+console.log('  - GOOGLE_SHEET_ID:', process.env.GOOGLE_SHEET_ID ? '✅ Configurado' : '❌ NO configurado');
 import { BaileysProvider } from '@builderbot/provider-baileys';
 import fs from 'fs';
 import path from 'path';
@@ -98,15 +104,30 @@ const welcomeFlow = addKeyword(['hola', 'ole', 'buenas', 'menu', 'inicio'])
     ], null, null, [schedulingFlow, servicesFlow, humanFlow]);
 
 const main = async () => {
-    const adapterFlow = createFlow([welcomeFlow, schedulingFlow, servicesFlow, humanFlow]);
-    const adapterProvider = createProvider(BaileysProvider);
-    const adapterDB = { find: () => null, save: () => null, init: () => null };
+    try {
+        console.log('🔧 Configurando flujos del bot...');
+        const adapterFlow = createFlow([welcomeFlow, schedulingFlow, servicesFlow, humanFlow]);
+        
+        console.log('📱 Configurando proveedor de WhatsApp (Baileys)...');
+        const adapterProvider = createProvider(BaileysProvider);
+        
+        console.log('💾 Configurando base de datos...');
+        const adapterDB = { find: () => null, save: () => null, init: () => null };
 
-    await createBot({
-        flow: adapterFlow,
-        provider: adapterProvider,
-        database: adapterDB,
-    });
+        console.log('🤖 Creando bot...');
+        await createBot({
+            flow: adapterFlow,
+            provider: adapterProvider,
+            database: adapterDB,
+        });
+        
+        console.log('✅ Bot de WhatsApp iniciado correctamente');
+        console.log('📲 Escanea el código QR que aparecerá arriba para conectar WhatsApp');
+    } catch (error) {
+        console.error('❌ Error al iniciar el bot de WhatsApp:', error);
+        console.error('Stack trace:', error.stack);
+        process.exit(1);
+    }
 };
 
 main();

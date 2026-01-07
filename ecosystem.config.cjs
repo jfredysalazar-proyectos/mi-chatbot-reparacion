@@ -8,6 +8,9 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
       },
+      error_file: './logs/whatsapp-error.log',
+      out_file: './logs/whatsapp-out.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss',
     },
     {
       name: 'telegram-repair-bot',
@@ -17,6 +20,9 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
       },
+      error_file: './logs/telegram-error.log',
+      out_file: './logs/telegram-out.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss',
     },
   ],
 };

@@ -1,4 +1,11 @@
 import { createBot, createProvider, createFlow, addKeyword } from '@builderbot/bot';
+
+console.log('🚀 Iniciando Bot de Telegram...');
+console.log('📋 Variables de entorno cargadas:');
+console.log('  - TELEGRAM_TOKEN:', process.env.TELEGRAM_TOKEN ? '✅ Configurado' : '❌ NO configurado');
+console.log('  - GOOGLE_SERVICE_ACCOUNT_EMAIL:', process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL ? '✅ Configurado' : '❌ NO configurado');
+console.log('  - GOOGLE_PRIVATE_KEY:', process.env.GOOGLE_PRIVATE_KEY ? '✅ Configurado' : '❌ NO configurado');
+console.log('  - GOOGLE_SHEET_ID:', process.env.GOOGLE_SHEET_ID ? '✅ Configurado' : '❌ NO configurado');
 import { TelegramProvider } from '@builderbot-plugins/telegram';
 import fs from 'fs';
 import path from 'path';
@@ -110,19 +117,32 @@ const welcomeFlow = addKeyword(['/start', 'hola', 'menu', 'Menu Principal'])
     }, null, [schedulingFlow, servicesFlow, humanFlow]);
 
 const main = async () => {
-    const adapterFlow = createFlow([welcomeFlow, schedulingFlow, servicesFlow, humanFlow]);
-    
-    const adapterProvider = createProvider(TelegramProvider, {
-        token: process.env.TELEGRAM_TOKEN || 'TU_TOKEN_DE_TELEGRAM'
-    });
+    try {
+        console.log('🔧 Configurando flujos del bot...');
+        const adapterFlow = createFlow([welcomeFlow, schedulingFlow, servicesFlow, humanFlow]);
+        
+        console.log('📡 Configurando proveedor de Telegram...');
+        const adapterProvider = createProvider(TelegramProvider, {
+            token: process.env.TELEGRAM_TOKEN || 'TU_TOKEN_DE_TELEGRAM'
+        });
 
-    const adapterDB = { find: () => null, save: () => null, init: () => null };
+        console.log('💾 Configurando base de datos...');
+        const adapterDB = { find: () => null, save: () => null, init: () => null };
 
-    await createBot({
-        flow: adapterFlow,
-        provider: adapterProvider,
-        database: adapterDB,
-    });
+        console.log('🤖 Creando bot...');
+        await createBot({
+            flow: adapterFlow,
+            provider: adapterProvider,
+            database: adapterDB,
+        });
+        
+        console.log('✅ Bot de Telegram iniciado correctamente');
+        console.log('📨 El bot está listo para recibir mensajes en Telegram');
+    } catch (error) {
+        console.error('❌ Error al iniciar el bot de Telegram:', error);
+        console.error('Stack trace:', error.stack);
+        process.exit(1);
+    }
 };
 
 main();

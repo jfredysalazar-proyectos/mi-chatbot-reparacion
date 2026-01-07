@@ -2,7 +2,6 @@ import 'dotenv/config';
 import { createBot, createProvider, createFlow, addKeyword } from '@builderbot/bot';
 import { BaileysProvider } from '@builderbot/provider-baileys';
 import { appendToSheet } from './googleSheets.js';
-import { formatDate, formatTime } from './utils.js';
 
 console.log('🚀 Iniciando Bot de WhatsApp...');
 console.log('📋 Variables de entorno cargadas:');

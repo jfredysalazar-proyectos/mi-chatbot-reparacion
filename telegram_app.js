@@ -2,7 +2,6 @@ import 'dotenv/config';
 import { createBot, createProvider, createFlow, addKeyword } from '@builderbot/bot';
 import { TelegramProvider } from '@builderbot-plugins/telegram';
 import { appendToSheet } from './googleSheets.js';
-import { formatDate, formatTime } from './utils.js';
 
 console.log('🚀 Iniciando Bot de Telegram...');
 console.log('📋 Variables de entorno cargadas:');

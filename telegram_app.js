@@ -130,7 +130,7 @@ const main = async () => {
         const adapterDB = { find: () => null, save: () => null, init: () => null };
 
         console.log('🤖 Creando bot...');
-        await createBot({
+        const bot = await createBot({
             flow: adapterFlow,
             provider: adapterProvider,
             database: adapterDB,
@@ -138,11 +138,37 @@ const main = async () => {
         
         console.log('✅ Bot de Telegram iniciado correctamente');
         console.log('📨 El bot está listo para recibir mensajes en Telegram');
+        console.log('🔑 Token de Telegram:', process.env.TELEGRAM_TOKEN ? `${process.env.TELEGRAM_TOKEN.substring(0, 10)}...` : 'NO CONFIGURADO');
         
-        // Mantener el proceso activo
+        // Agregar listeners para debugging
+        if (bot && bot.provider && bot.provider.vendor) {
+            const telegramBot = bot.provider.vendor;
+            
+            telegramBot.on('polling_error', (error) => {
+                console.error('❌ Error de polling en Telegram:', error.message);
+            });
+            
+            telegramBot.on('webhook_error', (error) => {
+                console.error('❌ Error de webhook en Telegram:', error.message);
+            });
+            
+            console.log('👂 Listeners de error configurados');
+            console.log('🔄 Esperando mensajes de Telegram...');
+        }
+        
+        // Mantener el proceso activo y mostrar estado
+        let messageCount = 0;
         setInterval(() => {
-            console.log('💓 Bot de Telegram activo -', new Date().toISOString());
+            console.log(`💓 Bot de Telegram activo - ${new Date().toISOString()} - Mensajes procesados: ${messageCount}`);
         }, 60000); // Log cada 60 segundos
+        
+        // Interceptar mensajes para contar
+        if (bot && bot.provider && bot.provider.vendor) {
+            bot.provider.vendor.on('message', (msg) => {
+                messageCount++;
+                console.log(`📩 Mensaje recibido de @${msg.from.username || msg.from.first_name}: ${msg.text}`);
+            });
+        }
         
     } catch (error) {
         console.error('❌ Error al iniciar el bot de Telegram:', error);

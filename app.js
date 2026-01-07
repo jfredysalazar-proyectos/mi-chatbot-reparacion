@@ -115,7 +115,9 @@ const main = async () => {
         const adapterDB = { find: () => null, save: () => null, init: () => null };
 
         console.log('🤖 Creando bot...');
-        await createBot({
+        console.log('⏳ Esperando generación del código QR de WhatsApp...');
+        
+        const bot = await createBot({
             flow: adapterFlow,
             provider: adapterProvider,
             database: adapterDB,
@@ -123,6 +125,34 @@ const main = async () => {
         
         console.log('✅ Bot de WhatsApp iniciado correctamente');
         console.log('📲 Escanea el código QR que aparecerá arriba para conectar WhatsApp');
+        console.log('🔍 Si no ves el QR arriba, busca en los logs anteriores');
+        
+        // Agregar listeners para eventos de conexión
+        if (bot && bot.provider && bot.provider.vendor) {
+            const waSocket = bot.provider.vendor;
+            
+            waSocket.ev.on('connection.update', (update) => {
+                const { connection, lastDisconnect, qr } = update;
+                
+                if (qr) {
+                    console.log('📱 ¡Código QR generado! Escanéalo con WhatsApp');
+                }
+                
+                if (connection === 'close') {
+                    console.log('⚠️ Conexión cerrada:', lastDisconnect?.error?.message || 'Sin mensaje de error');
+                }
+                
+                if (connection === 'open') {
+                    console.log('✅ ¡WhatsApp conectado exitosamente!');
+                }
+                
+                if (connection === 'connecting') {
+                    console.log('🔄 Conectando a WhatsApp...');
+                }
+            });
+            
+            console.log('👂 Listeners de conexión configurados');
+        }
         
         // Mantener el proceso activo
         setInterval(() => {

@@ -50,4 +50,21 @@ const getAppointmentsFromSheet = async () => {
     return rows.map(row => ({ horario: row.get('Horario') }));
 };
 
-export { saveToSheet, getAppointmentsFromSheet };
+const appendToSheet = async (rowData) => {
+    const doc = await getDoc();
+    if (!doc) {
+        console.error('No se pudo conectar con Google Sheets');
+        return false;
+    }
+    
+    try {
+        const sheet = doc.sheetsByIndex[0];
+        await sheet.addRow(rowData);
+        return true;
+    } catch (error) {
+        console.error('Error al agregar fila a Google Sheets:', error);
+        return false;
+    }
+};
+
+export { saveToSheet, getAppointmentsFromSheet, appendToSheet };

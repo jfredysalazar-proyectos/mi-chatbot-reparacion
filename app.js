@@ -1,107 +1,122 @@
+import 'dotenv/config';
 import { createBot, createProvider, createFlow, addKeyword } from '@builderbot/bot';
+import { BaileysProvider } from '@builderbot/provider-baileys';
+import { appendToSheet } from './googleSheets.js';
+import { formatDate, formatTime } from './utils.js';
 
 console.log('🚀 Iniciando Bot de WhatsApp...');
 console.log('📋 Variables de entorno cargadas:');
 console.log('  - GOOGLE_SERVICE_ACCOUNT_EMAIL:', process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL ? '✅ Configurado' : '❌ NO configurado');
 console.log('  - GOOGLE_PRIVATE_KEY:', process.env.GOOGLE_PRIVATE_KEY ? '✅ Configurado' : '❌ NO configurado');
 console.log('  - GOOGLE_SHEET_ID:', process.env.GOOGLE_SHEET_ID ? '✅ Configurado' : '❌ NO configurado');
-import { BaileysProvider } from '@builderbot/provider-baileys';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { isWithinBusinessHours, isSlotAvailable, parseDateTime } from './utils.js';
-import { saveToSheet } from './googleSheets.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Contador global de mensajes
+let messageCount = 0;
+let qrGenerated = false;
+let connected = false;
 
-const saveAppointment = async (data) => {
-    // Guardar en CSV local como respaldo
-    const filePath = path.join(__dirname, 'citas_agendadas.csv');
-    const header = 'Timestamp,Nombre,Telefono,Servicio,Equipo,Problema,Horario,Estado\n';
-    if (!fs.existsSync(filePath)) fs.writeFileSync(filePath, header);
-    const row = `${new Date().toISOString()},${data.name},${data.phone},${data.service},${data.device},${data.problem},${data.timeISO},Pendiente\n`;
-    fs.appendFileSync(filePath, row);
-
-    // Guardar en Google Sheets
-    await saveToSheet(data);
-};
-
-const servicesFlow = addKeyword(['2', 'servicios', 'precios'])
+const welcomeFlow = addKeyword(['hola', 'hi', 'hello', 'buenos días', 'buenas tardes'])
+    .addAnswer('¡Bienvenido al Servicio Técnico MyF! 👋', null, async (ctx) => {
+        messageCount++;
+        console.log(`📩 [${messageCount}] Mensaje recibido en welcomeFlow de usuario ${ctx.from}: ${ctx.body}`);
+    })
     .addAnswer([
-        '🛠️ *Nuestros Servicios:*',
-        '',
-        '*1. Hardware:* Reparación de pantallas, teclados, baterías. Desde $50.',
-        '*2. Software:* Formateo, eliminación de virus, instalación de programas. $30.',
-        '*3. Mantenimiento:* Limpieza física y térmica profunda. $40.',
-        '',
-        'Escribe *Agendar* para programar una cita o *Menu* para volver.'
+        'Selecciona una opción:',
+        '1️⃣ Agendar cita',
+        '2️⃣ Ver servicios disponibles',
+        '3️⃣ Hablar con un humano'
     ]);
 
-const humanFlow = addKeyword(['3', 'humano', 'tecnico', 'ayuda'])
-    .addAnswer('Entendido. Un técnico se pondrá en contacto contigo a este número lo antes posible. 👨‍🔧');
-
-const schedulingFlow = addKeyword(['1', 'agendar', 'cita'])
-    .addAnswer('¡Excelente! ¿Qué tipo de servicio necesitas? (Hardware, Software o Mantenimiento)', { capture: true }, async (ctx, { state }) => {
-        await state.update({ service: ctx.body });
-    })
-    .addAnswer('¿Marca y modelo de tu equipo?', { capture: true }, async (ctx, { state }) => {
-        await state.update({ device: ctx.body });
-    })
-    .addAnswer('Describe el problema:', { capture: true }, async (ctx, { state }) => {
-        await state.update({ problem: ctx.body });
+const schedulingFlow = addKeyword(['1', 'agendar', 'cita', 'agendar cita'])
+    .addAnswer('📅 Perfecto, vamos a agendar tu cita.', null, async (ctx) => {
+        messageCount++;
+        console.log(`📩 [${messageCount}] Mensaje recibido en schedulingFlow de usuario ${ctx.from}: ${ctx.body}`);
     })
     .addAnswer('¿Cuál es tu nombre completo?', { capture: true }, async (ctx, { state }) => {
-        await state.update({ name: ctx.body });
+        messageCount++;
+        console.log(`📩 [${messageCount}] Capturando nombre de usuario ${ctx.from}: ${ctx.body}`);
+        state.update({ name: ctx.body });
     })
-    .addAnswer([
-        '📅 *Horario de Atención:*',
-        'Lun-Vie: 9am - 5pm',
-        'Sáb: 9am - 12pm',
-        '',
-        'Por favor, ingresa la fecha y hora deseada.',
-        'Formato: *DIA/MES HORA:MIN*',
-        'Ejemplo: *15/01 10:30*'
-    ], { capture: true }, async (ctx, { state, flowDynamic, fallBack }) => {
-        const date = parseDateTime(ctx.body);
+    .addAnswer('¿Cuál es tu número de teléfono?', { capture: true }, async (ctx, { state }) => {
+        messageCount++;
+        console.log(`📩 [${messageCount}] Capturando teléfono de usuario ${ctx.from}: ${ctx.body}`);
+        state.update({ phone: ctx.body });
+    })
+    .addAnswer('¿Qué tipo de servicio necesitas? (Ejemplo: Reparación de laptop, instalación de software, etc.)', { capture: true }, async (ctx, { state }) => {
+        messageCount++;
+        console.log(`📩 [${messageCount}] Capturando servicio de usuario ${ctx.from}: ${ctx.body}`);
+        state.update({ service: ctx.body });
+    })
+    .addAnswer('¿Qué fecha prefieres? (Formato: DD/MM/YYYY)', { capture: true }, async (ctx, { state }) => {
+        messageCount++;
+        console.log(`📩 [${messageCount}] Capturando fecha de usuario ${ctx.from}: ${ctx.body}`);
+        state.update({ date: ctx.body });
+    })
+    .addAnswer('¿A qué hora? (Formato: HH:MM)', { capture: true }, async (ctx, { state, flowDynamic }) => {
+        messageCount++;
+        console.log(`📩 [${messageCount}] Capturando hora de usuario ${ctx.from}: ${ctx.body}`);
         
-        if (!date) {
-            return fallBack('❌ Formato inválido. Por favor usa: *DIA/MES HORA:MIN* (ej: 15/01 10:30)');
-        }
+        const myState = state.getMyState();
+        const appointmentData = {
+            name: myState.name,
+            phone: myState.phone,
+            service: myState.service,
+            date: myState.date,
+            time: ctx.body,
+            timestamp: new Date().toISOString()
+        };
 
-        if (!isWithinBusinessHours(date)) {
-            return fallBack('❌ Lo sentimos, esa hora está fuera de nuestro horario de atención. Por favor elige otra.');
+        try {
+            console.log('💾 Guardando cita en Google Sheets:', appointmentData);
+            await appendToSheet([
+                appointmentData.name,
+                appointmentData.phone,
+                appointmentData.service,
+                appointmentData.date,
+                appointmentData.time,
+                appointmentData.timestamp
+            ]);
+            console.log('✅ Cita guardada exitosamente en Google Sheets');
+            
+            await flowDynamic([
+                '✅ ¡Cita agendada exitosamente!',
+                `📝 Resumen:`,
+                `👤 Nombre: ${appointmentData.name}`,
+                `📞 Teléfono: ${appointmentData.phone}`,
+                `🔧 Servicio: ${appointmentData.service}`,
+                `📅 Fecha: ${appointmentData.date}`,
+                `⏰ Hora: ${appointmentData.time}`,
+                '',
+                'Te esperamos. ¡Gracias por confiar en nosotros! 😊'
+            ]);
+        } catch (error) {
+            console.error('❌ Error al guardar cita:', error);
+            await flowDynamic('❌ Hubo un error al agendar tu cita. Por favor, intenta de nuevo o contacta con soporte.');
         }
-
-        const available = await isSlotAvailable(date);
-        if (!available) {
-            return fallBack('❌ Lo sentimos, ese horario ya está reservado. Por favor elige otra hora.');
-        }
-
-        await state.update({ 
-            time: date.toLocaleString(), 
-            timeISO: date.toISOString(),
-            phone: ctx.from 
-        });
-        
-        const currentState = state.getMyState();
-        await saveAppointment(currentState);
-        
-        await flowDynamic(`¡Listo *${currentState.name}*! Tu cita para *${currentState.service}* ha sido registrada para el: *${date.toLocaleString()}*.`);
-        await flowDynamic('Te recordamos que cada cita tiene una duración estimada de 60 minutos. ¡Te esperamos! 💻');
     });
 
-const welcomeFlow = addKeyword(['hola', 'ole', 'buenas', 'menu', 'inicio'])
+const servicesFlow = addKeyword(['2', 'servicios', 'ver servicios'])
+    .addAnswer('🔧 Nuestros servicios disponibles:', null, async (ctx) => {
+        messageCount++;
+        console.log(`📩 [${messageCount}] Mensaje recibido en servicesFlow de usuario ${ctx.from}: ${ctx.body}`);
+    })
     .addAnswer([
-        '👋 ¡Hola! Bienvenido al servicio técnico de computadores.',
-        'Soy tu asistente virtual. ¿En qué puedo ayudarte hoy?',
+        '💻 Reparación de computadoras',
+        '📱 Reparación de celulares',
+        '🖨️ Instalación de software',
+        '🔌 Mantenimiento preventivo',
+        '🌐 Configuración de redes',
         '',
-        '1. 📅 *Agendar Cita*',
-        '2. 🛠️ *Consultar Servicios*',
-        '3. 👨‍🔧 *Hablar con un Técnico*',
-        '',
-        'Responde con el número de tu opción.'
-    ], null, null, [schedulingFlow, servicesFlow, humanFlow]);
+        'Escribe "1" para agendar una cita'
+    ]);
+
+const humanFlow = addKeyword(['3', 'humano', 'hablar con humano', 'agente'])
+    .addAnswer('👤 Te estamos conectando con un agente humano...', null, async (ctx) => {
+        messageCount++;
+        console.log(`📩 [${messageCount}] Mensaje recibido en humanFlow de usuario ${ctx.from}: ${ctx.body}`);
+        console.log('🔔 ALERTA: Usuario solicita hablar con humano');
+    })
+    .addAnswer('Un agente se pondrá en contacto contigo pronto. Por favor, espera un momento.');
 
 const main = async () => {
     try {
@@ -116,6 +131,12 @@ const main = async () => {
 
         console.log('🤖 Creando bot...');
         console.log('⏳ Esperando generación del código QR de WhatsApp...');
+        console.log('📍 El QR debería aparecer a continuación en los próximos 30-60 segundos...');
+        console.log('');
+        console.log('═══════════════════════════════════════════════════════════');
+        console.log('                    CÓDIGO QR DE WHATSAPP                  ');
+        console.log('═══════════════════════════════════════════════════════════');
+        console.log('');
         
         const bot = await createBot({
             flow: adapterFlow,
@@ -123,40 +144,20 @@ const main = async () => {
             database: adapterDB,
         });
         
+        console.log('');
+        console.log('═══════════════════════════════════════════════════════════');
+        console.log('');
         console.log('✅ Bot de WhatsApp iniciado correctamente');
-        console.log('📲 Escanea el código QR que aparecerá arriba para conectar WhatsApp');
-        console.log('🔍 Si no ves el QR arriba, busca en los logs anteriores');
-        
-        // Agregar listeners para eventos de conexión
-        if (bot && bot.provider && bot.provider.vendor) {
-            const waSocket = bot.provider.vendor;
-            
-            waSocket.ev.on('connection.update', (update) => {
-                const { connection, lastDisconnect, qr } = update;
-                
-                if (qr) {
-                    console.log('📱 ¡Código QR generado! Escanéalo con WhatsApp');
-                }
-                
-                if (connection === 'close') {
-                    console.log('⚠️ Conexión cerrada:', lastDisconnect?.error?.message || 'Sin mensaje de error');
-                }
-                
-                if (connection === 'open') {
-                    console.log('✅ ¡WhatsApp conectado exitosamente!');
-                }
-                
-                if (connection === 'connecting') {
-                    console.log('🔄 Conectando a WhatsApp...');
-                }
-            });
-            
-            console.log('👂 Listeners de conexión configurados');
-        }
+        console.log('📲 Si viste el código QR arriba, escanéalo con WhatsApp');
+        console.log('🔍 Si no apareció el QR, puede que ya exista una sesión guardada');
+        console.log('🔍 Estructura del bot:', Object.keys(bot || {}));
+        console.log('🔍 Proveedor disponible:', bot?.provider ? 'Sí' : 'No');
         
         // Mantener el proceso activo
         setInterval(() => {
-            console.log('💓 Bot de WhatsApp activo -', new Date().toISOString());
+            const now = new Date().toISOString();
+            const status = connected ? '🟢 Conectado' : (qrGenerated ? '🟡 QR generado' : '🔴 Esperando QR');
+            console.log(`💓 Bot de WhatsApp activo - ${now} - ${status} - Mensajes: ${messageCount}`);
         }, 60000); // Log cada 60 segundos
         
     } catch (error) {

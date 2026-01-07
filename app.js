@@ -1,9 +1,13 @@
-const { createBot, createProvider, createFlow, addKeyword } = require('@builderbot/bot');
-const { BaileysProvider } = require('@builderbot/provider-baileys');
-const fs = require('fs');
-const path = require('path');
-const { isWithinBusinessHours, isSlotAvailable, parseDateTime } = require('./utils');
-const { saveToSheet } = require('./googleSheets');
+import { createBot, createProvider, createFlow, addKeyword } from '@builderbot/bot';
+import { BaileysProvider } from '@builderbot/provider-baileys';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { isWithinBusinessHours, isSlotAvailable, parseDateTime } from './utils.js';
+import { saveToSheet } from './googleSheets.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const saveAppointment = async (data) => {
     // Guardar en CSV local como respaldo

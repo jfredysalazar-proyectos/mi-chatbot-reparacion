@@ -1,4 +1,4 @@
-const { getAppointmentsFromSheet } = require('./googleSheets');
+import { getAppointmentsFromSheet } from './googleSheets.js';
 
 const BUSINESS_HOURS = {
     1: { open: 9, close: 17 }, // Lunes
@@ -59,7 +59,7 @@ const parseDateTime = (input) => {
     return date;
 };
 
-module.exports = {
+export {
     isWithinBusinessHours,
     isSlotAvailable,
     parseDateTime,

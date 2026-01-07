@@ -1,6 +1,8 @@
-const { GoogleSpreadsheet } = require('google-spreadsheet');
-const { JWT } = require('google-auth-library');
-require('dotenv').config();
+import { GoogleSpreadsheet } from 'google-spreadsheet';
+import { JWT } from 'google-auth-library';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const SCOPES = [
   'https://www.googleapis.com/auth/spreadsheets',
@@ -48,4 +50,4 @@ const getAppointmentsFromSheet = async () => {
     return rows.map(row => ({ horario: row.get('Horario') }));
 };
 
-module.exports = { saveToSheet, getAppointmentsFromSheet };
+export { saveToSheet, getAppointmentsFromSheet };

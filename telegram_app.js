@@ -1,9 +1,16 @@
-const { createBot, createProvider, createFlow, addKeyword } = require('@builderbot/bot');
-const { TelegramProvider } = require('@builderbot-plugins/telegram');
-const fs = require('fs');
-const path = require('path');
-const { isWithinBusinessHours, isSlotAvailable, parseDateTime } = require('./utils');
-const { saveToSheet } = require('./googleSheets');
+import { createBot, createProvider, createFlow, addKeyword } from '@builderbot/bot';
+import { TelegramProvider } from '@builderbot-plugins/telegram';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+import { isWithinBusinessHours, isSlotAvailable, parseDateTime } from './utils.js';
+import { saveToSheet } from './googleSheets.js';
+
+dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const saveAppointment = async (data) => {
     // Guardar en CSV local como respaldo
@@ -105,7 +112,6 @@ const welcomeFlow = addKeyword(['/start', 'hola', 'menu', 'Menu Principal'])
 const main = async () => {
     const adapterFlow = createFlow([welcomeFlow, schedulingFlow, servicesFlow, humanFlow]);
     
-    require('dotenv').config();
     const adapterProvider = createProvider(TelegramProvider, {
         token: process.env.TELEGRAM_TOKEN || 'TU_TOKEN_DE_TELEGRAM'
     });

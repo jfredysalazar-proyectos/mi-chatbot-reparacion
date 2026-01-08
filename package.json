@@ -12,13 +12,12 @@
     "node": "20.x"
   },
   "dependencies": {
-    "@builderbot-plugins/telegram": "latest",
-    "@builderbot/bot": "latest",
     "body-parser": "^1.20.2",
     "dotenv": "^16.4.5",
     "express": "^4.18.2",
     "google-auth-library": "^9.6.3",
     "google-spreadsheet": "^4.1.2",
+    "node-telegram-bot-api": "^0.66.0",
     "twilio": "^5.0.0"
   }
 }

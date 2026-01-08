@@ -222,9 +222,9 @@ app.post('/whatsapp', async (req, res) => {
   res.status(200).send('');
 });
 
-// Webhook para Telegram (BuilderBot)
-import('./telegram_app.js').then(() => {
-  console.log('✅ Bot de Telegram iniciado');
+// Iniciar bot de Telegram (API Nativa)
+import('./telegram_bot.js').then(() => {
+  console.log('✅ Bot de Telegram iniciado y escuchando mensajes');
 }).catch(error => {
   console.error('❌ Error al iniciar bot de Telegram:', error);
 });

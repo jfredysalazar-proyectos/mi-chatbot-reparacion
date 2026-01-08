@@ -1,24 +1,24 @@
 {
   "name": "whatsapp-repair-bot",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
-  "description": "Chatbot de agendamiento para reparación de computadores",
-  "main": "app.js",
+  "description": "Chatbot de agendamiento para reparación de computadores con Twilio y Telegram",
+  "main": "server.js",
   "scripts": {
-    "start": "node app.js",
-    "telegram": "node telegram_app.js",
-    "pm2": "pm2-runtime start ecosystem.config.cjs"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
   "engines": {
     "node": "20.x"
   },
   "dependencies": {
-    "@builderbot/bot": "latest",
-    "@builderbot/provider-baileys": "latest",
     "@builderbot-plugins/telegram": "latest",
-    "dotenv": "latest",
-    "google-spreadsheet": "latest",
-    "google-auth-library": "latest",
-    "pm2": "^5.3.0"
+    "@builderbot/bot": "latest",
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "google-auth-library": "^9.6.3",
+    "google-spreadsheet": "^4.1.2",
+    "twilio": "^5.0.0"
   }
 }
